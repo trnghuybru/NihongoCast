@@ -1,38 +1,70 @@
+// src/pages/VideoPage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { getVideoDetails } from "../services/youtubeService";
 import YouTubePlayer from "../components/YoutubePlayer";
 import VideoDetails from "../components/VideoDetails";
 import Subtitles from "../components/Subtitles";
+import { useVideo } from "../contexts/VideoContext";
 
-function VideoPage() {
+// Helper: parse ISO8601 "PT#M#S" → seconds
+function parseISODuration(iso) {
+  const m = iso.match(/PT(\d+)M/);
+  const s = iso.match(/(\d+)S/);
+  return (m ? +m[1] * 60 : 0) + (s ? +s[1] : 0);
+}
+
+export default function VideoPage() {
   const { videoId } = useParams();
+  const { playVideo, updateProgress } = useVideo();
   const [video, setVideo] = useState(null);
-  const [loadingVideo, setLoadingVideo] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
-  const seekRef = useRef(null); // 🌟 Ref để lưu hàm seekTo từ YouTubePlayer
+  const seekRef = useRef(null);
 
   useEffect(() => {
-    async function fetchVideo() {
+    let alive = true;
+    async function fetchData() {
       try {
         const data = await getVideoDetails(videoId);
+        if (!alive) return;
         setVideo(data);
-      } catch (error) {
-        console.error("Lỗi khi fetch video:", error);
+
+        // Guard missing contentDetails.duration
+        const iso = data.contentDetails?.duration;
+        const durationSec = iso ? parseISODuration(iso) : 0;
+
+        // map to minimal shape
+        playVideo({
+          id: videoId,
+          title: data.snippet.title,
+          channelTitle: data.snippet.channelTitle,
+          thumbnail: data.snippet.thumbnails.medium.url,
+          duration: durationSec,
+        });
+      } catch (e) {
+        console.error("Lỗi khi fetch video:", e);
       } finally {
-        setLoadingVideo(false);
+        if (alive) setLoading(false);
       }
     }
-    fetchVideo();
-  }, [videoId]);
+    fetchData();
+    return () => {
+      alive = false;
+      // no cleanup — keep mini‑player state
+    };
+  }, [videoId, playVideo]);
 
-  if (loadingVideo) {
-    return <div>Đang tải video...</div>;
-  }
+  if (loading) return <div>Đang tải video...</div>;
+  if (!video) return <div>Không tìm thấy video!</div>;
 
-  if (!video) {
-    return <div>Không tìm thấy video nào!</div>;
-  }
+  const onTimeUpdate = (current, total) => {
+    setCurrentTime(current);
+    updateProgress(current, total);
+  };
+  const onSeek = (fn) => {
+    seekRef.current = fn;
+  };
 
   return (
     <div className="container mx-auto p-4 pt-24">
@@ -41,19 +73,17 @@ function VideoPage() {
         <div className="flex flex-col gap-4">
           <YouTubePlayer
             videoId={videoId}
-            onTimeUpdate={setCurrentTime}
-            onSeek={(seekFn) => (seekRef.current = seekFn)} // 🌟 Lưu hàm seekTo
+            onTimeUpdate={onTimeUpdate}
+            onSeek={onSeek}
           />
           <VideoDetails video={video} />
         </div>
         <Subtitles
           videoId={videoId}
           currentTime={currentTime}
-          onSubtitleClick={(time) => seekRef.current && seekRef.current(time)} // 🌟 Click phụ đề để tua video
+          onSubtitleClick={(t) => seekRef.current && seekRef.current(t)}
         />
       </div>
     </div>
   );
 }
-
-export default VideoPage;
