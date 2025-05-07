@@ -43,8 +43,8 @@ const Navbar = ({ onSearch }) => {
             Kaiwa
           </NavLink>
           {/* chuaw link  */}
-          <NavLink to="/community" className="hover:text-gray-200">
-            Community
+          <NavLink to="/decks" className="hover:text-gray-200">
+            Flashcards
           </NavLink>
         </nav>
 
