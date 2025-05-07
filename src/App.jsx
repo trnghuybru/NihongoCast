@@ -47,20 +47,22 @@ function App() {
   }, [query]);
 
   return (
-    <Router>
-      <Navbar onSearch={setQuery} />
-      <Routes>
-        <Route path="/" element={<Home videos={videos} />} />
-        <Route path="/video/:videoId" element={<VideoPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/flashcards" element={<Flashcard />} />
-        <Route path="/decks" element={<DecksPage />} />
-        <Route path="/decks/new" element={<CreateDeckPage />} />
-        <Route path="/decks/:deckId" element={<DeckDetailPage />} />
-        <Route path="/decks/:deckId/study" element={<StudyPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
+    <VideoProvider>
+      <Router>
+        <Navbar onSearch={setQuery} />
+        <Routes>
+          <Route path="/" element={<Home videos={videos} />} />
+          <Route path="/video/:videoId" element={<VideoPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/flashcards" element={<Flashcard />} />
+          <Route path="/decks" element={<DecksPage />} />
+          <Route path="/decks/new" element={<CreateDeckPage />} />
+          <Route path="/decks/:deckId" element={<DeckDetailPage />} />
+          <Route path="/decks/:deckId/study" element={<StudyPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Router>
+    </VideoProvider>
   );
 }
 
