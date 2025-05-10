@@ -33,6 +33,11 @@ function AppContent({ videos, onSearch }) {
     </>
   );
 }
+import TestDashboard from "./pages/TestDashboard";
+import CreateTestPage from "./pages/CreateTestPage";
+import TestDetailPage from "./pages/TestDetailPage";
+import TakeTestPage from "./pages/TakeTestPage";
+import TestResultPage from "./pages/TestResultPage";
 
 function App() {
   const [query, setQuery] = useState("japanese short podcast");
@@ -60,6 +65,11 @@ function App() {
           <Route path="/decks/:deckId" element={<DeckDetailPage />} />
           <Route path="/decks/:deckId/study" element={<StudyPage />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/tests" element={<TestDashboard />} />
+          <Route path="/tests/create/:type" element={<CreateTestPage />} />
+          <Route path="/tests/:id" element={<TestDetailPage />} />
+          <Route path="/tests/:id/take" element={<TakeTestPage />} />
+          <Route path="/test-results/:resultId" element={<TestResultPage />} />
         </Routes>
       </Router>
     </VideoProvider>

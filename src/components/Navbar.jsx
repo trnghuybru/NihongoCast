@@ -46,6 +46,9 @@ const Navbar = ({ onSearch }) => {
           <NavLink to="/decks" className="hover:text-gray-200">
             Flashcards
           </NavLink>
+          <NavLink to="/tests" className="hover:text-gray-200">
+            Test
+          </NavLink>
         </nav>
 
         {/* Search + Auth */}
