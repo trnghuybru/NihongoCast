@@ -11,7 +11,8 @@ class TestResultController {
       
       // Lấy ID người dùng từ request (giả sử đã xác thực)
       const userId = req.user ? req.user.id : null;
-      
+      // const userId = "663888888888888888888888";
+
       // Kiểm tra bài test tồn tại không
       const test = await Test.findById(testId);
       if (!test) {

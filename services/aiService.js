@@ -1,46 +1,40 @@
 const axios = require('axios');
-const FlashcardDeck = require('../../flashcard-api/models/flashcardDeck');
+const FLASHCARD_API_URL = process.env.FLASHCARD_API_URL || 'http://localhost:3001';
+
 
 // Service xử lý tạo câu hỏi bằng AI
 class AiService {
   
+
   // Phương thức tạo câu hỏi từ bộ flashcard
   static async generateQuestionsFromFlashcards(deckId, options = {}) {
     try {
-      // Lấy thông tin bộ flashcard
-      const deck = await FlashcardDeck.findById(deckId);
-      if (!deck) {
-        throw new Error('Không tìm thấy bộ flashcard');
+      // Gọi API đến flashcard-api thay vì dùng model trực tiếp
+      const response = await axios.get(`${FLASHCARD_API_URL}/api/flashcard-decks/${deckId}`);
+      const deck = response.data;
+  
+      if (!deck || !deck.flashcards) {
+        throw new Error('Không tìm thấy bộ flashcard hoặc bộ dữ liệu không hợp lệ');
       }
-      
-      // Mặc định tạo 10 câu hỏi
+  
       const questionCount = options.questionCount || 10;
-      // Mặc định tạo độ khó trung bình
       const difficulty = options.difficulty || 'medium';
-      // Mặc định tạo câu hỏi trắc nghiệm
       const questionTypes = options.questionTypes || ['multiple-choice'];
-      
-      // Chuẩn bị dữ liệu để gửi cho AI
+  
       const flashcardData = deck.flashcards.map(card => ({
         japanese: card.japanese,
         vietnamese: card.vietnamese
       }));
-      
-      // Trong môi trường thật, bạn sẽ gọi AI API ở đây
-      // Ví dụ: OpenAI, Google Bard, ... để tạo câu hỏi
-      
-      // Mô phỏng gọi API AI (trong thực tế sẽ thay thế bằng API thật)
-      // const aiResponse = await this.callAiApi(flashcardData, questionCount, difficulty, questionTypes);
-      
-      // Tạm thời mô phỏng kết quả từ AI
+  
       const questions = this.mockGenerateQuestions(flashcardData, questionCount, difficulty, questionTypes);
-      
       return questions;
+  
     } catch (error) {
-      console.error('Lỗi khi tạo câu hỏi từ flashcard:', error);
+      console.error('Lỗi khi tạo câu hỏi từ flashcard:', error.message);
       throw error;
     }
   }
+  
   
   // Phương thức tạo câu hỏi từ video/podcast (giả lập)
   static async generateQuestionsFromMedia(mediaId, mediaType, transcript, options = {}) {

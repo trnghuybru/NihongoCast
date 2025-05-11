@@ -14,7 +14,8 @@ router.post('/tests/:id/publish', TestController.publishTest);
 router.delete('/tests/:id', TestController.deleteTest);
 
 // Routes cho việc làm bài test
-router.get('/tests/:id/start', TestResultController.startTest);
+const authMiddleware = require('../middlewares/authMiddleware');
+router.post('/tests/:id/start', authMiddleware, TestResultController.startTest);
 router.post('/test-results/:resultId/answers', TestResultController.saveAnswer);
 router.post('/test-results/:resultId/submit', TestResultController.submitTest);
 

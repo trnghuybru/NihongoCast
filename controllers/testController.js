@@ -29,7 +29,7 @@ class TestController {
   static async getTestById(req, res) {
     try {
       const testId = req.params.id;
-      
+      console.log(testId);
       const test = await Test.findById(testId);
       if (!test) {
         return res.status(404).json({ message: 'Không tìm thấy bài test' });
