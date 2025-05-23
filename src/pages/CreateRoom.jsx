@@ -1,285 +1,188 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { create_UUID, getCurrentTimeAndDate } from "../components/hooks/home"
-import "../components/kaiwa/styles-modern.css"
-import { ToastContainer, toast } from "react-toastify"
+import "../components/kaiwa/styles.css"
 import "react-toastify/dist/ReactToastify.css"
 
 const CreateRoom = () => {
-  const [time, setTime] = useState("")
-  const [date, setDate] = useState("")
-  const [newMeetingId, setNewMeetingId] = useState("")
-  const [joinMeetingId, setJoinMeetingId] = useState("")
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showJoinModal, setShowJoinModal] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
+  const [roomId, setRoomId] = useState("")
+  const [existingRoomId, setExistingRoomId] = useState("")
+  const [currentTime, setCurrentTime] = useState(new Date())
   const navigate = useNavigate()
-  const newMeetingIdRef = useRef(null)
 
   useEffect(() => {
-    const updateTimeAndDate = () => {
-      const { time: newTime, date: newDate } = getCurrentTimeAndDate()
-      setTime(newTime)
-      setDate(newDate)
-    }
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
 
-    updateTimeAndDate() // Initial call
-    const interval = setInterval(updateTimeAndDate, 1000)
-    return () => clearInterval(interval)
+    return () => clearInterval(timer)
   }, [])
 
-  // Xử lý body khi modal hiển thị
-  useEffect(() => {
-    if (showCreateModal || showJoinModal) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
-
-    return () => {
-      document.body.style.overflow = ""
-    }
-  }, [showCreateModal, showJoinModal])
-
-  const generateMeetingId = () => {
-    const id = create_UUID()
-    setNewMeetingId(id)
-    toast.success("Meeting ID generated successfully!")
+  const formatTime = (date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
   }
 
-  const copyMeetingId = () => {
-    navigator.clipboard
-      .writeText(newMeetingId)
-      .then(() => {
-        toast.success("Meeting ID copied to clipboard!")
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err)
-        toast.error("Failed to copy to clipboard")
-      })
+  const formatDate = (date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    })
   }
 
-  const joinNewMeeting = () => {
-    if (newMeetingId) {
-      navigate(`/meeting/${newMeetingId}`)
-    } else {
-      toast.error("Please create a meeting first")
+  const handleRoomIdGenerate = () => {
+    const randomId = Math.random().toString(36).substring(2, 9)
+    const timestamp = Date.now().toString().substring(-4)
+    setRoomId(randomId + timestamp)
+  }
+
+  const handleOneAndOneCall = () => {
+    if (!roomId) {
+      alert("Please Generate Room Id First")
+      return
     }
+    navigate(`${roomId}?type=one-on-one`)
   }
 
-  const joinMeeting = () => {
-    if (joinMeetingId) {
-      navigate(`/meeting/${joinMeetingId}`)
-    } else {
-      toast.error("Please enter a valid meeting ID")
+  const handleGroupCall = () => {
+    if (!roomId) {
+      alert("Please Generate Room Id First")
+      return
     }
+    navigate(`${roomId}?type=group-call`)
   }
 
-  const closeModal = (setter) => {
-    setIsClosing(true)
-    setTimeout(() => {
-      setter(false)
-      setIsClosing(false)
-    }, 300)
+  const handleJoinRoom = () => {
+    if (!existingRoomId) {
+      alert("Please Enter a Room ID")
+      return
+    }
+    navigate(`${existingRoomId}?type=group-call`)
   }
 
   return (
-    <div className="app-container">
- 
-      <main className="app-main">
-        <div className="container kaiwa-container">
-          <div className="welcome-section">
-            <h1>Welcome to Kaiwa</h1>
-            <p>Create or join a meeting with just a few clicks</p>
-          </div>
+    <div className="kaiwa-container">
 
-          <div className="content-grid">
-            {/* Left Side: Action Buttons */}
-            <div className="action-buttons">
-              <div className="action-card new-meeting" onClick={() => setShowCreateModal(true)}>
-                <div className="action-icon">
-                  <i className="fas fa-video"></i>
-                </div>
-                <div className="action-text">
-                  <h3>New Meeting</h3>
-                  <p>Create a new meeting and invite others</p>
-                </div>
-              </div>
-
-              <div className="action-card join-meeting" onClick={() => setShowJoinModal(true)}>
-                <div className="action-icon">
-                  <i className="fas fa-sign-in-alt"></i>
-                </div>
-                <div className="action-text">
-                  <h3>Join Meeting</h3>
-                  <p>Join an existing meeting with a code</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side: Time Card */}
-            <div className="time-card">
-              <div className="time-display">
-                <div className="time">{time}</div>
-                <div className="date">{date}</div>
-              </div>
-              <div className="quick-stats">
-                <div className="stat">
-                  <div className="stat-value">0</div>
-                  <div className="stat-label">Today's Meetings</div>
-                </div>
-                <div className="stat">
-                  <div className="stat-value">0</div>
-                  <div className="stat-label">Upcoming</div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="kaiwa-content">
+        <div className="welcome-section">
+          <h1 className="welcome-title">Connect with anyone, anywhere</h1>
+          <p className="welcome-subtitle">
+            Create or join a meeting with just a few clicks. High-quality video calls for one-on-one or group
+            conversations.
+          </p>
         </div>
-      </main>
 
-      {/* Create Meeting Modal */}
-      {showCreateModal && (
-        <div className={`modal-container ${isClosing ? "closing" : ""}`}>
-          <div className="modal-backdrop" onClick={() => closeModal(setShowCreateModal)}></div>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  <i className="fas fa-video"></i> Create New Meeting
-                </h5>
-                <button className="close-button" onClick={() => closeModal(setShowCreateModal)}>
-                  <i className="fas fa-times"></i>
-                </button>
+        <div className="main-content main-container1">
+          <div className="left-content">
+            <div className="card create-card">
+              <div className="card-header">
+                <div className="card-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                </div>
+                <h2 className="card-title">Create a new meeting</h2>
               </div>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label htmlFor="meetingId">Meeting ID</label>
-                  <div className="input-group">
-                    <input
-                      id="meetingId"
-                      className="form-input"
-                      type="text"
-                      placeholder="Your meeting ID will appear here"
-                      value={newMeetingId}
-                      onChange={(e) => setNewMeetingId(e.target.value)}
-                      ref={newMeetingIdRef}
-                      readOnly={!!newMeetingId}
-                    />
-                    {newMeetingId && (
-                      <button className="input-group-btn" onClick={copyMeetingId} title="Copy to clipboard">
-                        <i className="fas fa-copy"></i>
-                      </button>
-                    )}
-                  </div>
+              <div className="card-content">
+                <div className="input-group">
+                  <input
+                    type="text"
+                    className="room-input"
+                    placeholder="Your room ID will appear here"
+                    value={roomId}
+                    readOnly
+                  />
+                  <button className="generate-btn" onClick={handleRoomIdGenerate}>
+                    Generate ID
+                  </button>
                 </div>
-
-                <div className="form-group">
-                  <label>Meeting Options</label>
-                  <div className="option-toggles">
-                    <div className="toggle-option">
-                      <input type="checkbox" id="video" defaultChecked />
-                      <label htmlFor="video">Start with video</label>
-                    </div>
-                    <div className="toggle-option">
-                      <input type="checkbox" id="audio" defaultChecked />
-                      <label htmlFor="audio">Start with audio</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="generate-button-container">
-                  <button className="btn btn-generate" onClick={generateMeetingId}>
-                    <i className="fas fa-random"></i> Generate Meeting ID
+                <div className="call-options">
+                  <button className="call-btn one-on-one" onClick={handleOneAndOneCall} disabled={!roomId}>
+                    <span className="btn-icon">👤</span>
+                    <span className="btn-text">One-on-One</span>
+                  </button>
+                  <button className="call-btn group-call" onClick={handleGroupCall} disabled={!roomId}>
+                    <span className="btn-icon">👥</span>
+                    <span className="btn-text">Group Call</span>
                   </button>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => closeModal(setShowCreateModal)}>
-                  Cancel
-                </button>
-                <button className="btn btn-primary" onClick={joinNewMeeting} disabled={!newMeetingId}>
-                  <i className="fas fa-sign-in-alt"></i> Start Meeting
-                </button>
-              </div>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* Join Meeting Modal */}
-      {showJoinModal && (
-        <div className={`modal-container ${isClosing ? "closing" : ""}`}>
-          <div className="modal-backdrop" onClick={() => closeModal(setShowJoinModal)}></div>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  <i className="fas fa-sign-in-alt"></i> Join Meeting
-                </h5>
-                <button className="close-button" onClick={() => closeModal(setShowJoinModal)}>
-                  <i className="fas fa-times"></i>
-                </button>
+            <div className="card join-card">
+              <div className="card-header">
+                <div className="card-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                  </svg>
+                </div>
+                <h2 className="card-title">Join existing meeting</h2>
               </div>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label htmlFor="joinMeetingId">Meeting ID</label>
+              <div className="card-content">
+                <div className="input-group">
                   <input
-                    id="joinMeetingId"
-                    className="form-input"
                     type="text"
-                    placeholder="Enter meeting ID"
-                    value={joinMeetingId}
-                    onChange={(e) => setJoinMeetingId(e.target.value)}
+                    className="room-input"
+                    placeholder="Enter room ID to join"
+                    value={existingRoomId}
+                    onChange={(e) => setExistingRoomId(e.target.value)}
                   />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="displayName">Your Name (optional)</label>
-                  <input id="displayName" className="form-input" type="text" placeholder="Enter your name" />
-                </div>
-
-                <div className="form-group">
-                  <label>Meeting Options</label>
-                  <div className="option-toggles">
-                    <div className="toggle-option">
-                      <input type="checkbox" id="joinVideo" defaultChecked />
-                      <label htmlFor="joinVideo">Join with video</label>
-                    </div>
-                    <div className="toggle-option">
-                      <input type="checkbox" id="joinAudio" defaultChecked />
-                      <label htmlFor="joinAudio">Join with audio</label>
-                    </div>
-                  </div>
+                  <button className="join-btn" onClick={handleJoinRoom}>
+                    Join Now
+                  </button>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => closeModal(setShowJoinModal)}>
-                  Cancel
-                </button>
-                <button className="btn btn-primary" onClick={joinMeeting} disabled={!joinMeetingId}>
-                  <i className="fas fa-sign-in-alt"></i> Join Meeting
-                </button>
+            </div>
+          </div>
+
+          <div className="right-content">
+            {/* Original Time Display */}
+            <div className="time-display">
+              <div className="time-display-time">{formatTime(currentTime)}</div>
+              <div className="time-display-date">{formatDate(currentTime)}</div>
+            </div>
+
+            <div className="stats-container">
+              <div className="stat-box">
+                <div className="stat-number">0</div>
+                <div className="stat-label">Today's Meetings</div>
+              </div>
+              <div className="stat-box">
+                <div className="stat-number">0</div>
+                <div className="stat-label">Upcoming</div>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Toast Container */}
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      
     </div>
   )
 }

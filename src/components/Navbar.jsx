@@ -39,12 +39,15 @@ const Navbar = ({ onSearch }) => {
           <NavLink to="/" end className="hover:text-gray-200">
             Trang chủ
           </NavLink>
-          <NavLink to="/create-room" className="hover:text-gray-200">
+          <NavLink to="/room" className="hover:text-gray-200">
             Kaiwa
           </NavLink>
           {/* chuaw link  */}
           <NavLink to="/decks" className="hover:text-gray-200">
             Flashcards
+          </NavLink>
+          <NavLink to="/tests" className="hover:text-gray-200">
+            Test
           </NavLink>
         </nav>
 

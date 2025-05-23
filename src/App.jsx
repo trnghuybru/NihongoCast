@@ -9,6 +9,7 @@ import DeckDetailPage from "./pages/DeckDetailPage";
 import DecksPage from "./pages/DecksPage";
 import Flashcard from "./pages/Flashcard";
 import Home from "./pages/Home";
+import MeetingResults from './pages/MeetingResults';
 import Kaiwa from "./pages/Kaiwa";
 import CreateRoom from "./pages/CreateRoom";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -34,6 +35,11 @@ function AppContent({ videos, onSearch }) {
     </>
   );
 }
+import TestDashboard from "./pages/TestDashboard";
+import CreateTestPage from "./pages/CreateTestPage";
+import TestDetailPage from "./pages/TestDetailPage";
+import TakeTestPage from "./pages/TakeTestPage";
+import TestResultPage from "./pages/TestResultPage";
 
 function App() {
   const [query, setQuery] = useState("japanese short podcast");
@@ -50,19 +56,25 @@ function App() {
   return (
     <VideoProvider>
       <Router>
-        <Navbar onSearch={setQuery} />
+        {!(location.pathname.startsWith("/room/")) && <Navbar onSearch={setQuery} />}
         <Routes>
           <Route path="/" element={<Home videos={videos} />} />
           <Route path="/video/:videoId" element={<VideoPage />} />
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="/create-room" element={<CreateRoom />} />
-          <Route path="/meeting/:id" element={<Kaiwa />} />
+          <Route path="/room" element={<CreateRoom />} />
+          <Route path="/room/:roomId" element={<Kaiwa />} />
+          <Route path="/meeting-results" element={<MeetingResults />} />
           <Route path="/flashcards" element={<Flashcard />} />
           <Route path="/decks" element={<DecksPage />} />
           <Route path="/decks/new" element={<CreateDeckPage />} />
           <Route path="/decks/:deckId" element={<DeckDetailPage />} />
           <Route path="/decks/:deckId/study" element={<StudyPage />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/tests" element={<TestDashboard />} />
+          <Route path="/tests/create/:type" element={<CreateTestPage />} />
+          <Route path="/tests/:id" element={<TestDetailPage />} />
+          <Route path="/tests/:id/take" element={<TakeTestPage />} />
+          <Route path="/test-results/:resultId" element={<TestResultPage />} />
         </Routes>
       </Router>
     </VideoProvider>
