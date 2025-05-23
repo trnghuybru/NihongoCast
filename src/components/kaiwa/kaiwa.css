@@ -1,0 +1,247 @@
+/* Thêm vào file CSS hiện tại */
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.room-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.room-header {
+  background-color: #282c34;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.exit-button {
+  background: #ff4e50;
+  color: white;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.video-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 3rem);
+}
+
+.recording-status {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 0.25rem;
+  z-index: 10;
+}
+
+/* Styles mới cho màn hình phân tích */
+.exit-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ff4e50 0%, #f9d423 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.analysis-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 800px;
+  overflow: hidden;
+}
+
+.analysis-header {
+  background: linear-gradient(135deg, #ff4e50 0%, #f9d423 100%);
+  padding: 20px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.analysis-icon {
+  font-size: 2.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.analysis-title {
+  font-size: 1.8rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.analysis-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #ff4e50;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  color: #666;
+  font-size: 1.1rem;
+  margin-top: 15px;
+}
+
+.analysis-result {
+  padding: 20px;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #fff0d4;
+  padding-bottom: 10px;
+}
+
+.result-title {
+  color: #ff4e50;
+  font-size: 1.3rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.result-content {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  color: #333;
+  line-height: 1.6;
+  max-height: 350px;
+  overflow-y: auto;
+  white-space: pre-line;
+  border: 1px solid #eee;
+  font-size: 1rem;
+}
+
+.error-message {
+  margin: 30px 20px;
+  padding: 15px;
+  background: #fff3cd;
+  color: #856404;
+  border-radius: 8px;
+  border: 1px solid #ffeeba;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exit-footer {
+  background: #f9f9f9;
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.countdown-info {
+  color: #666;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.redirect-info {
+  color: #666;
+  font-style: italic;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.exit-button:hover {
+  background: #ff3a3c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 78, 80, 0.3);
+}
+
+.copy-button {
+  background: #4a90e2;
+  color: white;
+}
+
+.copy-button:hover {
+  background: #3a80d2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+.button-icon {
+  font-size: 1.2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .analysis-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .result-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .result-content {
+    max-height: 250px;
+  }
+}

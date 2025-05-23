@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { testService } from "../services/api";
-import Layout from "../components/Layout/Layout";
+import Layout from "../components/layout/Layout";
 import ResultSummary from "../components/TestResults/ResultSummary";
 import QuestionRenderer from "../components/Questions/QuestionRenderer";
 
@@ -53,19 +53,18 @@ const TestResultPage = () => {
   if (error || !result || !test) {
     return (
       <Layout>
-        <div className="text-center py-8 text-red-500">{error || "Test result not found"}</div>
+        <div className="text-center py-8 text-red-500">
+          {error || "Test result not found"}
+        </div>
       </Layout>
     );
   }
 
   // Create a map of user answers for easy lookup
-  const userAnswers = result.answers.reduce(
-    (map, answer) => {
-      map[answer.questionId] = answer.answer;
-      return map;
-    },
-    {}
-  );
+  const userAnswers = result.answers.reduce((map, answer) => {
+    map[answer.questionId] = answer.answer;
+    return map;
+  }, {});
 
   return (
     <Layout>
