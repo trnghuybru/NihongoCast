@@ -33,7 +33,6 @@ const TestDetailPage = () => {
 
   const handleStartTest = async () => {
     if (!id) return;
-    const userId = "123123"; //thay bang user nguoi dung
     setIsStarting(true);
 
     try {

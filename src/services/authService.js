@@ -8,6 +8,7 @@ export async function login(email, password) {
   });
   const data = response.data;
   localStorage.setItem("accessToken", data.access_token);
+  localStorage.setItem("accessToken", data.user);
   return data;
 }
 

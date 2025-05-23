@@ -14,7 +14,14 @@ const api2 = axios.create({
     'Content-Type': 'application/json'
   }
 });
-
+// Thêm token vào request header
+api2.interceptors.request.use(config => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 // Handle API errors
 api.interceptors.response.use(
   (response) => response,
