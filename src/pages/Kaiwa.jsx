@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import "../components/kaiwa/kaiwa.css"
 import { useParams, useLocation, useNavigate } from "react-router-dom"
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt"
-import { APP_ID, SECRET } from "../config"
+import { APP_ID, SECRET } from "../Config"
 import axios from "axios"
 
 const Kaiwa = () => {

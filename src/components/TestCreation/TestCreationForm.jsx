@@ -77,13 +77,35 @@ const TestCreationForm = () => {
         title,
         description,
         timeLimit,
-        questions,
+        questions: questions.map(q => ({
+          // Nếu id là temp-..., không gửi lên, để Mongoose tự sinh
+          ...(q.id && !q.id.startsWith('temp-') ? { _id: q.id } : {}),
+          question: q.text, // đổi text thành question
+          type: q.type,
+          options: q.options?.map(opt => opt.text),
+          correctAnswers: (() => {
+            if (q.type === "multiple-choice") {
+              // Lấy đáp án đúng từ options
+              const correct = q.options?.filter(opt => opt.isCorrect).map(opt => opt.text);
+              return correct && correct.length === 1 ? correct[0] : correct; // 1 đáp án hoặc nhiều đáp án
+            }
+            if (q.type === "fill-blank" || q.type === "essay") {
+              return q.answer;
+            }
+            if (q.type === "drag-drop") {
+              return q.options?.map(opt => opt.text);
+            }
+            return "";
+          })(),
+          explanation: q.explanation || "",
+          points: q.points,
+        })),
         isPublished: false,
-      }
+      };
 
       const createdTest = await testService.createManualTest(testData)
       alert("Test created successfully!")
-      navigate(`/tests/${createdTest.id}`)
+      navigate(`/tests/${createdTest._id}`)
     } catch (error) {
       console.error("Failed to create test:", error)
       alert("Failed to create test. Please try again.")

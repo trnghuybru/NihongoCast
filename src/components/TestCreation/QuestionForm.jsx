@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 const QuestionForm = ({ question, onChange }) => {
   const [questionText, setQuestionText] = useState(question.text)
@@ -8,15 +8,25 @@ const QuestionForm = ({ question, onChange }) => {
   const [answer, setAnswer] = useState(question.answer || "")
   const [points, setPoints] = useState(question.points)
 
+  const prev = useRef({ questionText, options, answer, points })
+
   useEffect(() => {
-    const updatedQuestion = {
-      ...question,
-      text: questionText,
-      options: question.type === "multiple-choice" || question.type === "drag-drop" ? options : undefined,
-      answer: question.type === "fill-blank" || question.type === "essay" ? answer : undefined,
-      points,
+    if (
+      prev.current.questionText !== questionText ||
+      JSON.stringify(prev.current.options) !== JSON.stringify(options) ||
+      prev.current.answer !== answer ||
+      prev.current.points !== points
+    ) {
+      const updatedQuestion = {
+        ...question,
+        text: questionText,
+        options: question.type === "multiple-choice" || question.type === "drag-drop" ? options : undefined,
+        answer: question.type === "fill-blank" || question.type === "essay" ? answer : undefined,
+        points,
+      }
+      onChange(updatedQuestion)
+      prev.current = { questionText, options, answer, points }
     }
-    onChange(updatedQuestion)
   }, [questionText, options, answer, points, question, onChange])
 
   const handleAddOption = () => {
