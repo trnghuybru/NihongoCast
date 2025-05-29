@@ -86,7 +86,9 @@ const TestDetailPage = () => {
 
             <div className="bg-gray-50 p-4 rounded-md">
               <h3 className="font-medium mb-2">Total Points</h3>
-              <p className="text-2xl font-bold">{test.questions.reduce((sum, q) => sum + q.points, 0)}</p>
+              <p className="text-2xl font-bold">
+                {test.questions.reduce((sum, q) => sum + (+q.points || 0), 10)}
+              </p>
             </div>
           </div>
 
@@ -98,10 +100,10 @@ const TestDetailPage = () => {
                   {type === "multiple-choice"
                     ? "Multiple Choice"
                     : type === "essay"
-                    ? "Essay"
-                    : type === "fill-blank"
-                    ? "Fill-in-the-Blank"
-                    : "Drag & Drop"}
+                      ? "Essay"
+                      : type === "fill-blank"
+                        ? "Fill-in-the-Blank"
+                        : "Drag & Drop"}
                 </span>
               ))}
             </div>
