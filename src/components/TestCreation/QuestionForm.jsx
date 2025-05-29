@@ -1,10 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState, useEffect } from "react";
-=======
-import { useState, useEffect, useRef } from "react"
->>>>>>> cd0ce2d79bd902e8139d82ff0df45982ac4c96b5
+import { useState, useEffect, useRef } from "react";
 
 const QuestionForm = ({ question, onChange }) => {
   const [questionText, setQuestionText] = useState(question.text);
@@ -12,7 +8,7 @@ const QuestionForm = ({ question, onChange }) => {
   const [answer, setAnswer] = useState(question.answer || "");
   const [points, setPoints] = useState(question.points);
 
-  const prev = useRef({ questionText, options, answer, points })
+  const prev = useRef({ questionText, options, answer, points });
 
   useEffect(() => {
     if (
@@ -24,14 +20,20 @@ const QuestionForm = ({ question, onChange }) => {
       const updatedQuestion = {
         ...question,
         text: questionText,
-        options: question.type === "multiple-choice" || question.type === "drag-drop" ? options : undefined,
-        answer: question.type === "fill-blank" || question.type === "essay" ? answer : undefined,
+        options:
+          question.type === "multiple-choice" || question.type === "drag-drop"
+            ? options
+            : undefined,
+        answer:
+          question.type === "fill-blank" || question.type === "essay"
+            ? answer
+            : undefined,
         points,
-      }
-      onChange(updatedQuestion)
-      prev.current = { questionText, options, answer, points }
+      };
+      onChange(updatedQuestion);
+      prev.current = { questionText, options, answer, points };
     }
-  }, [questionText, options, answer, points, question, onChange])
+  }, [questionText, options, answer, points, question, onChange]);
 
   const handleAddOption = () => {
     const newOption = {
