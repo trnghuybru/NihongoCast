@@ -124,7 +124,16 @@ export const testService = {
 
   // Start a test
   startTest: async (id) => {
-    const response = await api2.post(`/tests/${id}/start`);
+    const token = localStorage.getItem("accessToken");
+    const response = await api2.post(
+      `/tests/${id}/start`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   },
 
