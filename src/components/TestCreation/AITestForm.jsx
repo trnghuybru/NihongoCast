@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { testService } from "../../services/api"
+import { deckApi } from '../../services/api';
 
 const AITestForm = () => {
   const navigate = useNavigate()
@@ -11,6 +12,20 @@ const AITestForm = () => {
   const [questionCount, setQuestionCount] = useState(5)
   const [questionTypes, setQuestionTypes] = useState(["multiple-choice"])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [decks, setDecks] = useState([])
+
+  useEffect(() => {
+    const fetchDecks = async () => {
+      try {
+        const decks = await deckApi.getAllDecks()
+        console.log(decks)
+        setDecks(decks)
+      } catch (error) {
+        console.error('Không thể tải danh sách bộ flashcard:', error)
+      }
+    }
+    fetchDecks()
+  }, [])
 
   const handleQuestionTypeToggle = (type) => {
     if (questionTypes.includes(type)) {
@@ -41,18 +56,19 @@ const AITestForm = () => {
     setIsSubmitting(true)
 
     try {
+      // Chuẩn bị dữ liệu gửi lên, đảm bảo sourceId đúng kiểu (string id)
       const testData = {
         title,
         description,
-        source,
-        sourceId,
+        sourceType: source,
+        sourceId,  // ở đây sourceId là id của deck khi source=flashcard
         questionCount,
         questionTypes,
       }
 
       const createdTest = await testService.createAITest(testData)
       alert("Test created successfully!")
-      navigate(`/tests/${createdTest.id}`)
+      navigate(`/tests/${createdTest._id}`)
     } catch (error) {
       console.error("Failed to create AI test:", error)
       alert("Failed to create test. Please try again.")
@@ -96,54 +112,60 @@ const AITestForm = () => {
         <div className="mb-6">
           <label className="block text-gray-700 font-medium mb-2">Source Type</label>
           <div className="flex space-x-4">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                className="form-radio h-5 w-5 text-orange-500"
-                checked={source === "flashcard"}
-                onChange={() => setSource("flashcard")}
-              />
-              <span className="ml-2">Flashcard</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                className="form-radio h-5 w-5 text-orange-500"
-                checked={source === "video"}
-                onChange={() => setSource("video")}
-              />
-              <span className="ml-2">Video</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                className="form-radio h-5 w-5 text-orange-500"
-                checked={source === "podcast"}
-                onChange={() => setSource("podcast")}
-              />
-              <span className="ml-2">Podcast</span>
-            </label>
+            {["flashcard", "video", "podcast"].map((type) => (
+              <label key={type} className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio h-5 w-5 text-orange-500"
+                  checked={source === type}
+                  onChange={() => {
+                    setSource(type)
+                    setSourceId("") // reset sourceId khi đổi source
+                  }}
+                />
+                <span className="ml-2 capitalize">{type}</span>
+              </label>
+            ))}
           </div>
         </div>
 
         <div className="mb-6">
           <label className="block text-gray-700 font-medium mb-2" htmlFor="sourceId">
-            Source ID
+            {source === "flashcard" ? "Choose a Flashcard Deck" : "Source ID"}
           </label>
-          <input
-            type="text"
-            id="sourceId"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-            value={sourceId}
-            onChange={(e) => setSourceId(e.target.value)}
-            required
-            placeholder={`Enter the ${source} ID`}
-          />
-          <p className="mt-1 text-sm text-gray-500">
-            {source === "flashcard" && "Enter the flashcard deck ID"}
-            {source === "video" && "Enter the video ID"}
-            {source === "podcast" && "Enter the podcast episode ID"}
-          </p>
+
+          {source === "flashcard" ? (
+            <select
+              id="sourceId"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              value={sourceId}
+              onChange={(e) => setSourceId(e.target.value)}
+              required
+            >
+              <option value="">-- Select a deck --</option>
+              {decks.map((deck) => (
+                <option key={deck._id} value={deck._id}>
+                  {deck.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <>
+              <input
+                type="text"
+                id="sourceId"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                value={sourceId}
+                onChange={(e) => setSourceId(e.target.value)}
+                required
+                placeholder={`Enter the ${source} ID`}
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                {source === "video" && "Enter the video ID"}
+                {source === "podcast" && "Enter the podcast episode ID"}
+              </p>
+            </>
+          )}
         </div>
 
         <div className="mb-6">
@@ -164,42 +186,24 @@ const AITestForm = () => {
         <div className="mb-6">
           <label className="block text-gray-700 font-medium mb-2">Question Types</label>
           <div className="space-y-2">
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                className="form-checkbox h-5 w-5 text-orange-500"
-                checked={questionTypes.includes("multiple-choice")}
-                onChange={() => handleQuestionTypeToggle("multiple-choice")}
-              />
-              <span className="ml-2">Multiple Choice</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                className="form-checkbox h-5 w-5 text-orange-500"
-                checked={questionTypes.includes("essay")}
-                onChange={() => handleQuestionTypeToggle("essay")}
-              />
-              <span className="ml-2">Essay</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                className="form-checkbox h-5 w-5 text-orange-500"
-                checked={questionTypes.includes("fill-blank")}
-                onChange={() => handleQuestionTypeToggle("fill-blank")}
-              />
-              <span className="ml-2">Fill-in-the-Blank</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                className="form-checkbox h-5 w-5 text-orange-500"
-                checked={questionTypes.includes("drag-drop")}
-                onChange={() => handleQuestionTypeToggle("drag-drop")}
-              />
-              <span className="ml-2">Drag & Drop</span>
-            </label>
+            {["multiple-choice", "essay", "fill-blank", "drag-drop"].map((type) => (
+              <label key={type} className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-orange-500"
+                  checked={questionTypes.includes(type)}
+                  onChange={() => handleQuestionTypeToggle(type)}
+                />
+                <span className="ml-2 capitalize">
+                  {{
+                    "multiple-choice": "Multiple Choice",
+                    essay: "Essay",
+                    "fill-blank": "Fill-in-the-Blank",
+                    "drag-drop": "Drag & Drop",
+                  }[type]}
+                </span>
+              </label>
+            ))}
           </div>
         </div>
 
