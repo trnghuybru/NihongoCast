@@ -1,10 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useVideo } from "../contexts/VideoContext"; // Nhập context để sử dụng trạng thái
+import { useVideo } from "../contexts/VideoContext";
 
-function YouTubePlayer({ videoId, onSeek }) {
+function YouTubePlayer({ videoId, onSeek, onTimeUpdate }) {
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
-  const lastTimeRef = useRef(0); // Lưu thời gian cuối cùng đã báo cáo
+  const lastTimeRef = useRef(0);
+  const onTimeUpdateRef = useRef(onTimeUpdate); // Sử dụng ref để tránh dependency
+
+  // Cập nhật ref khi onTimeUpdate thay đổi
+  useEffect(() => {
+    onTimeUpdateRef.current = onTimeUpdate;
+  }, [onTimeUpdate]);
 
   // Sử dụng context
   const { isPlaying, setIsPlaying, updateProgress } = useVideo();
@@ -31,7 +37,7 @@ function YouTubePlayer({ videoId, onSeek }) {
       playerRef.current = event.target;
       const duration = event.target.getDuration();
       if (typeof duration === "number" && !isNaN(duration)) {
-        updateProgress(0, duration); // Cập nhật progress khi player sẵn sàng
+        updateProgress(0, duration);
       }
 
       intervalRef.current = setInterval(() => {
@@ -42,13 +48,19 @@ function YouTubePlayer({ videoId, onSeek }) {
           ) {
             const time = playerRef.current.getCurrentTime();
             const duration = playerRef.current.getDuration();
+
             if (
               typeof time === "number" &&
               !isNaN(time) &&
               Math.abs(time - lastTimeRef.current) >= 0.5
             ) {
               lastTimeRef.current = time;
-              updateProgress(time, duration); // Cập nhật tiến độ mỗi giây
+              updateProgress(time, duration); // Cập nhật cho mini player
+
+              // Gọi onTimeUpdate để cập nhật currentTime trong VideoPage
+              if (onTimeUpdateRef.current) {
+                onTimeUpdateRef.current(time);
+              }
             }
           }
         } catch (e) {
@@ -106,12 +118,12 @@ function YouTubePlayer({ videoId, onSeek }) {
         playerRef.current = new window.YT.Player("youtube-player-container", {
           videoId,
           playerVars: {
-            autoplay: 1, // Tự động phát
-            controls: 1, // Hiển thị controls
-            rel: 0, // Không hiển thị video liên quan
-            modestbranding: 1, // Giảm branding YouTube
+            autoplay: 1,
+            controls: 1,
+            rel: 0,
+            modestbranding: 1,
             origin: window.location.origin,
-            enablejsapi: 1, // Bật JavaScript API
+            enablejsapi: 1,
           },
           events: {
             onReady: onPlayerReady,
@@ -177,13 +189,18 @@ function YouTubePlayer({ videoId, onSeek }) {
         playerRef.current = null;
       }
     };
-  }, [videoId, setIsPlaying, updateProgress]);
+  }, [videoId, setIsPlaying, updateProgress]); // Không thêm onTimeUpdate vào dependency
 
   const handleSeek = (time) => {
     if (playerRef.current && typeof playerRef.current.seekTo === "function") {
       try {
         playerRef.current.seekTo(time, true);
-        lastTimeRef.current = time; // Cập nhật thời gian cuối cùng khi tua
+        lastTimeRef.current = time;
+
+        // Cập nhật currentTime ngay lập tức khi seek
+        if (onTimeUpdateRef.current) {
+          onTimeUpdateRef.current(time);
+        }
       } catch (e) {
         console.error("Error seeking video:", e);
       }

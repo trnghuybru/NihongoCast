@@ -13,12 +13,12 @@ export default defineConfig({
         secure: false,
       },
       // '/api': 'http://localhost:5000'
-      '/api': 'http://localhost:5000',
-      '/module2-api': {
-        target: 'http://localhost:5001',
+      "/api": "http://localhost:5000",
+      "/module2-api": {
+        target: "http://localhost:5001",
         changeOrigin: true,
-      }
-
+        rewrite: (path) => path.replace(/^\/module2-api/, "/api"),
+      },
     },
   },
 });
