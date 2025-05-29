@@ -1,5 +1,5 @@
 // src/pages/VideoPage.jsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { getVideoDetails } from "../services/youtubeService";
 import YouTubePlayer from "../components/YoutubePlayer";
@@ -55,16 +55,29 @@ export default function VideoPage() {
     };
   }, [videoId, playVideo]);
 
+  // Sử dụng useCallback để tạo stable function reference
+  const onTimeUpdate = useCallback(
+    (current, total) => {
+      setCurrentTime(current);
+      updateProgress(current, total);
+    },
+    [updateProgress]
+  );
+
+  // onSeek cũng nên stable
+  const onSeek = useCallback((fn) => {
+    seekRef.current = fn;
+  }, []);
+
+  // Handle subtitle click cũng nên stable
+  const handleSubtitleClick = useCallback((time) => {
+    if (seekRef.current) {
+      seekRef.current(time);
+    }
+  }, []);
+
   if (loading) return <div>Đang tải video...</div>;
   if (!video) return <div>Không tìm thấy video!</div>;
-
-  const onTimeUpdate = (current, total) => {
-    setCurrentTime(current);
-    updateProgress(current, total);
-  };
-  const onSeek = (fn) => {
-    seekRef.current = fn;
-  };
 
   return (
     <div className="container mx-auto p-4 pt-24">
@@ -81,7 +94,7 @@ export default function VideoPage() {
         <Subtitles
           videoId={videoId}
           currentTime={currentTime}
-          onSubtitleClick={(t) => seekRef.current && seekRef.current(t)}
+          onSubtitleClick={handleSubtitleClick}
         />
       </div>
     </div>
