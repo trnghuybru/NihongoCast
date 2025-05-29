@@ -8,7 +8,7 @@ export async function login(email, password) {
   });
   const data = response.data;
   localStorage.setItem("accessToken", data.access_token);
-  localStorage.setItem("accessToken", data.user);
+  localStorage.setItem("user", JSON.stringify(data.user)); 
   return data;
 }
 
@@ -32,4 +32,5 @@ export async function register(username, email, password) {
 // Đăng xuất
 export function logout() {
   localStorage.removeItem("accessToken");
+  localStorage.removeItem("user");
 }
